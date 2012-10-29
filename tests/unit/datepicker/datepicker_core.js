@@ -12,31 +12,19 @@ function equalsDate(d1, d2, message) {
 	equal(d1.toString(), d2.toString(), message);
 }
 
-function equalsDateArray(a1, a2, message) {
-	if (!a1 || !a2) {
-		ok(false, message + ' - missing dates');
-		return;
-	}
-	a1[0] = (a1[0] ? new Date(a1[0].getFullYear(), a1[0].getMonth(), a1[0].getDate()) : '');
-	a1[1] = (a1[1] ? new Date(a1[1].getFullYear(), a1[1].getMonth(), a1[1].getDate()) : '');
-	a2[0] = (a2[0] ? new Date(a2[0].getFullYear(), a2[0].getMonth(), a2[0].getDate()) : '');
-	a2[1] = (a2[1] ? new Date(a2[1].getFullYear(), a2[1].getMonth(), a2[1].getDate()) : '');
-	deepEqual(a1, a2, message);
-}
-
-function addMonths(date, offset) {
+TestHelpers.addMonths = function(date, offset) {
 	var maxDay = 32 - new Date(date.getFullYear(), date.getMonth() + offset, 32).getDate();
 	date.setDate(Math.min(date.getDate(), maxDay));
 	date.setMonth(date.getMonth() + offset);
 	return date;
-}
+};
 
 function init(id, options) {
 	$.datepicker.setDefaults($.datepicker.regional['']);
 	return $(id).datepicker($.extend({showAnim: ''}, options || {}));
 }
 
-var PROP_NAME = 'datepicker';
+TestHelpers.PROP_NAME = 'datepicker';
 
 (function($) {
 
@@ -55,15 +43,14 @@ test("widget method", function() {
 });
 
 test('baseStructure', function() {
-	expect( 59 );
+	expect( 58 );
 	var header, title, table, thead, week, panel, inl, child,
 		inp = init('#inp').focus(),
-		dp = $('#ui-datepicker-div'),
-		iframe = ($.browser.msie && parseInt($.browser.version, 10) < 7);
+		dp = $('#ui-datepicker-div');
 	ok(dp.is(':visible'), 'Structure - datepicker visible');
 	ok(!dp.is('.ui-datepicker-rtl'), 'Structure - not right-to-left');
 	ok(!dp.is('.ui-datepicker-multi'), 'Structure - not multi-month');
-	equal(dp.children().length, 2 + (iframe ? 1 : 0), 'Structure - child count');
+	equal(dp.children().length, 2, 'Structure - child count');
 
 	header = dp.children(':first');
 	ok(header.is('div.ui-datepicker-header'), 'Structure - header division');
@@ -90,7 +77,6 @@ test('baseStructure', function() {
 	equal(week.children().length, 7, 'Structure - week child count');
 	ok(week.children(':first').is('td.ui-datepicker-week-end'), 'Structure - month table first day cell');
 	ok(week.children(':last').is('td.ui-datepicker-week-end'), 'Structure - month table second day cell');
-	ok(dp.children('iframe').length === (iframe ? 1 : 0), 'Structure - iframe');
 	inp.datepicker('hide').datepicker('destroy');
 
 	// Editable month/year and button panel
@@ -112,7 +98,7 @@ test('baseStructure', function() {
 	inp = init('#inp', {numberOfMonths: 2});
 	inp.focus();
 	ok(dp.is('.ui-datepicker-multi'), 'Structure multi [2] - multi-month');
-	equal(dp.children().length, 3 + (iframe ? 1 : 0), 'Structure multi [2] - child count');
+	equal(dp.children().length, 3, 'Structure multi [2] - child count');
 	child = dp.children(':first');
 	ok(child.is('div.ui-datepicker-group') && child.is('div.ui-datepicker-group-first'), 'Structure multi [2] - first month division');
 	child = dp.children(':eq(1)');
@@ -133,7 +119,7 @@ test('baseStructure', function() {
 	inp = init('#inp', {numberOfMonths: [2, 2]});
 	inp.focus();
 	ok(dp.is('.ui-datepicker-multi'), 'Structure multi - multi-month');
-	equal(dp.children().length, 6 + (iframe ? 1 : 0), 'Structure multi [2,2] - child count');
+	equal(dp.children().length, 6, 'Structure multi [2,2] - child count');
 	child = dp.children(':first');
 	ok(child.is('div.ui-datepicker-group') && child.is('div.ui-datepicker-group-first'), 'Structure multi [2,2] - first month division');
 	child = dp.children(':eq(1)');
@@ -168,7 +154,7 @@ test('baseStructure', function() {
 	inl = init('#inl', {numberOfMonths: 2});
 	dp = inl.children();
 	ok(dp.is('.ui-datepicker-inline') && dp.is('.ui-datepicker-multi'), 'Structure inline multi - main div');
-	equal(dp.children().length, 3 + (iframe ? 1 : 0), 'Structure inline multi - child count');
+	equal(dp.children().length, 3, 'Structure inline multi - child count');
 	child = dp.children(':first');
 	ok(child.is('div.ui-datepicker-group') && child.is('div.ui-datepicker-group-first'), 'Structure inline multi - first month division');
 	child = dp.children(':eq(1)');
@@ -180,13 +166,12 @@ test('baseStructure', function() {
 
 test('customStructure', function() {
 	expect( 20 );
-	var iframe, header, panel, title, thead,
+	var header, panel, title, thead,
 		dp = $('#ui-datepicker-div'),
 		// Check right-to-left localisation
 		inp = init('#inp', $.datepicker.regional.he);
 	inp.data('showButtonPanel.datepicker',true);
 	inp.focus();
-	iframe = ($.browser.msie && parseInt($.browser.version, 10) < 7);
 	ok(dp.is('.ui-datepicker-rtl'), 'Structure RTL - right-to-left');
 	header = dp.children(':first');
 	ok(header.is('div.ui-datepicker-header'), 'Structure RTL - header division');

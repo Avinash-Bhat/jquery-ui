@@ -195,8 +195,8 @@ test("resizeStop", function() {
 	el.remove();
 });
 
-test("close", function() {
-	expect(7);
+asyncTest("close", function() {
+	expect(14);
 
 	el = $('<div></div>').dialog({
 		close: function(ev, ui) {
@@ -212,6 +212,23 @@ test("close", function() {
 	});
 	el.dialog('close');
 	el.remove();
+
+	// Close event with an effect
+	el = $('<div></div>').dialog({
+		hide: 10,
+		close: function(ev, ui) {
+			ok(true, '.dialog("close") fires close callback');
+			equal(this, el[0], "context of callback");
+			equal(ev.type, 'dialogclose', 'event type in callback');
+			deepEqual(ui, {}, 'ui hash in callback');
+			start();
+		}
+	}).bind('dialogclose', function(ev, ui) {
+		ok(true, '.dialog("close") fires dialogclose event');
+		equal(this, el[0], 'context of event');
+		deepEqual(ui, {}, 'ui hash in event');
+	});
+	el.dialog('close');
 });
 
 test("beforeClose", function() {
@@ -227,7 +244,7 @@ test("beforeClose", function() {
 		}
 	});
 	el.dialog('close');
-	isOpen('beforeClose callback should prevent dialog from closing');
+	TestHelpers.isOpen('beforeClose callback should prevent dialog from closing');
 	el.remove();
 
 	el = $('<div></div>').dialog();
@@ -239,7 +256,7 @@ test("beforeClose", function() {
 		return false;
 	});
 	el.dialog('close');
-	isOpen('beforeClose callback should prevent dialog from closing');
+	TestHelpers.isOpen('beforeClose callback should prevent dialog from closing');
 	el.remove();
 
 	el = $('<div></div>').dialog().bind('dialogbeforeclose', function(ev, ui) {
@@ -249,7 +266,7 @@ test("beforeClose", function() {
 		return false;
 	});
 	el.dialog('close');
-	isOpen('dialogbeforeclose event should prevent dialog from closing');
+	TestHelpers.isOpen('dialogbeforeclose event should prevent dialog from closing');
 	el.remove();
 });
 
